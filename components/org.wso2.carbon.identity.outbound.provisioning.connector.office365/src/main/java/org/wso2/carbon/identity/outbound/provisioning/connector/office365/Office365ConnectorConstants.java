@@ -20,5 +20,9 @@
 package org.wso2.carbon.identity.outbound.provisioning.connector.office365;
 
 public class Office365ConnectorConstants {
-    //Add the constant variables here
+
+    public static final String OFFICE365_CLIENT_ID = "office365-client-id";
+    public static final String OFFICE365_CLIENT_SECRET = "office365-client-secret";
+    public static final String OFFICE365_IDP_EMAIL = "office365-idp-email";
+    public static final String OFFICE365_NAME_ID = "office365-name-id";
 }

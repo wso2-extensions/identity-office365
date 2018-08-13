@@ -52,9 +52,39 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
 
     @Override
     public List<Property> getConfigurationProperties() {
-        List<Property> configProperties = new ArrayList<Property>();
-        //Add your code for the UI
-        return configProperties;
+        List<Property> properties = new ArrayList<>();
+
+        Property username = new Property();
+        username.setName(Office365ConnectorConstants.OFFICE365_CLIENT_ID);
+        username.setDisplayName("Client ID");
+        username.setDisplayOrder(1);
+        username.setRequired(true);
+
+        Property userPassword = new Property();
+        userPassword.setName(Office365ConnectorConstants.OFFICE365_CLIENT_SECRET);
+        userPassword.setDisplayName("Client Secret");
+        userPassword.setConfidential(true);
+        userPassword.setDisplayOrder(2);
+        userPassword.setRequired(true);
+
+        Property userEndpoint = new Property();
+        userEndpoint.setName(Office365ConnectorConstants.OFFICE365_NAME_ID);
+        userEndpoint.setDisplayName("NameId");
+        userEndpoint.setDisplayOrder(3);
+        userEndpoint.setRequired(true);
+
+        Property groupEndpoint = new Property();
+        groupEndpoint.setName(Office365ConnectorConstants.OFFICE365_IDP_EMAIL);
+        groupEndpoint.setDisplayName("IDPEmail");
+        groupEndpoint.setDisplayOrder(4);
+        userEndpoint.setRequired(true);
+
+        properties.add(username);
+        properties.add(userPassword);
+        properties.add(userEndpoint);
+        properties.add(groupEndpoint);
+
+        return properties;
     }
 
 }
