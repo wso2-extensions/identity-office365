@@ -52,9 +52,60 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
 
     @Override
     public List<Property> getConfigurationProperties() {
-        List<Property> configProperties = new ArrayList<Property>();
-        //Add your code for the UI
-        return configProperties;
+        List<Property> properties = new ArrayList<>();
+
+        Property clientId = new Property();
+        clientId.setName(Office365ConnectorConstants.OFFICE365_CLIENT_ID);
+        clientId.setDisplayName("Client ID");
+        clientId.setDisplayOrder(1);
+        clientId.setRequired(true);
+
+        Property clientSecret = new Property();
+        clientSecret.setName(Office365ConnectorConstants.OFFICE365_CLIENT_SECRET);
+        clientSecret.setDisplayName("Client Secret");
+        clientSecret.setConfidential(true);
+        clientSecret.setDisplayOrder(2);
+        clientSecret.setRequired(true);
+
+        Property immutableId = new Property();
+        immutableId.setName(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID);
+        immutableId.setDisplayName("Immutable ID");
+        immutableId.setDisplayOrder(3);
+        immutableId.setRequired(true);
+
+        Property domainEnabled = new Property();
+        domainEnabled.setName(Office365ConnectorConstants.OFFICE365_ENABLE_DOMAIN);
+        domainEnabled.setDisplayName("Enable Domain name in UPN");
+        domainEnabled.setDisplayOrder(4);
+
+        Property udn = new Property();
+        udn.setName(Office365ConnectorConstants.OFFICE365_UDN);
+        udn.setDisplayName("User Principal Name");
+        udn.setDisplayOrder(5);
+        udn.setRequired(true);
+
+        Property displayName = new Property();
+        displayName.setName(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME);
+        displayName.setDisplayName("Display Name");
+        displayName.setDisplayOrder(6);
+        displayName.setRequired(true);
+
+        Property mailNickName = new Property();
+        mailNickName.setName(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME);
+        mailNickName.setDisplayName("Email Nicknamee");
+        mailNickName.setDisplayOrder(7);
+        mailNickName.setRequired(true);
+
+
+        properties.add(clientId);
+        properties.add(clientSecret);
+        properties.add(immutableId);
+        properties.add(domainEnabled);
+        properties.add(udn);
+        properties.add(displayName);
+        properties.add(mailNickName);
+
+        return properties;
     }
 
 }
