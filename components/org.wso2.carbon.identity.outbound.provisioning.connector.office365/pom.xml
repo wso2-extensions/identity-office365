@@ -36,6 +36,18 @@
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.json.wso2</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.wso2</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -64,6 +76,12 @@
                             version="${carbon.identity.framework.import.version.range}",
                             org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.json; version="${json.wso2.version.range}",
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
+                            org.apache.http.*;version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            org.apache.http.client.*;version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            org.apache.http.impl.client.*;version="${httpcomponents-httpclient.imp.pkg.version.range}",
+
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.outbound.provisioning.connector.office365.internal,

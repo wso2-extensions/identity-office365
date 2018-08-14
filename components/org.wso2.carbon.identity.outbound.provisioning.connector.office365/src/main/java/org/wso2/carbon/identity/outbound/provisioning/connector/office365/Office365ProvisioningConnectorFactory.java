@@ -67,41 +67,56 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         clientSecret.setDisplayOrder(2);
         clientSecret.setRequired(true);
 
+        Property tenant = new Property();
+        tenant.setName(Office365ConnectorConstants.OFFICE365_TENANT);
+        tenant.setDisplayName("Office365 Tenant Name");
+        tenant.setDescription("Example : username.onmicrosoft.com");
+        tenant.setDisplayOrder(3);
+        tenant.setRequired(true);
+
+        Property domain = new Property();
+        domain.setName(Office365ConnectorConstants.OFFICE365_DOMAIN);
+        domain.setDisplayName("Office365 Domain Name");
+        domain.setDisplayOrder(4);
+        domain.setRequired(true);
+
         Property immutableId = new Property();
         immutableId.setName(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID);
         immutableId.setDisplayName("Immutable ID");
-        immutableId.setDisplayOrder(3);
+        immutableId.setDisplayOrder(5);
         immutableId.setRequired(true);
 
         Property domainEnabled = new Property();
         domainEnabled.setName(Office365ConnectorConstants.OFFICE365_ENABLE_DOMAIN);
-        domainEnabled.setDisplayName("Enable Domain name in UPN");
-        domainEnabled.setDisplayOrder(4);
+        domainEnabled.setDisplayName("Enable Domain Name in UPN");
+        domainEnabled.setDescription("If enabled domain name will be appended to UPN");
+        domainEnabled.setDisplayOrder(6);
 
-        Property udn = new Property();
-        udn.setName(Office365ConnectorConstants.OFFICE365_UDN);
-        udn.setDisplayName("User Principal Name");
-        udn.setDisplayOrder(5);
-        udn.setRequired(true);
+        Property upn = new Property();
+        upn.setName(Office365ConnectorConstants.OFFICE365_UPN);
+        upn.setDisplayName("User Principal Name");
+        upn.setDisplayOrder(7);
+        upn.setRequired(true);
 
         Property displayName = new Property();
         displayName.setName(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME);
         displayName.setDisplayName("Display Name");
-        displayName.setDisplayOrder(6);
+        displayName.setDisplayOrder(8);
         displayName.setRequired(true);
 
         Property mailNickName = new Property();
         mailNickName.setName(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME);
-        mailNickName.setDisplayName("Email Nicknamee");
-        mailNickName.setDisplayOrder(7);
+        mailNickName.setDisplayName("Email Nickname");
+        mailNickName.setDisplayOrder(9);
         mailNickName.setRequired(true);
-
 
         properties.add(clientId);
         properties.add(clientSecret);
+        properties.add(tenant);
+        properties.add(domain);
         properties.add(immutableId);
         properties.add(domainEnabled);
-        properties.add(udn);
+        properties.add(upn);
         properties.add(displayName);
         properties.add(mailNickName);
 
