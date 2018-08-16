@@ -264,7 +264,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         String upn = requiredAttributes.get(upnClaim);
 
         // Append the domain name at the end of the claim which given as the user principal name.
-        if (enableDomain) {
+        if (enableDomain && !upn.endsWith("@"+domainName)) {
             upn = upn + "@" + domainName;
         }
 
