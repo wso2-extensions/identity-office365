@@ -86,17 +86,17 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         immutableId.setDisplayOrder(5);
         immutableId.setRequired(true);
 
-        Property domainEnabled = new Property();
-        domainEnabled.setName(Office365ConnectorConstants.OFFICE365_ENABLE_DOMAIN);
-        domainEnabled.setDisplayName("Enable Domain Name in UPN");
-        domainEnabled.setDescription("If enabled domain name will be appended to UPN");
-        domainEnabled.setDisplayOrder(6);
-
         Property upn = new Property();
         upn.setName(Office365ConnectorConstants.OFFICE365_UPN);
         upn.setDisplayName("User Principal Name");
-        upn.setDisplayOrder(7);
+        upn.setDisplayOrder(6);
         upn.setRequired(true);
+
+        Property domainEnabled = new Property();
+        domainEnabled.setName(Office365ConnectorConstants.OFFICE365_ENABLE_DOMAIN);
+        domainEnabled.setDisplayName("Append Domain Name to UPN");
+        domainEnabled.setDescription("If enabled domain name will be appended to UPN");
+        domainEnabled.setDisplayOrder(7);
 
         Property displayName = new Property();
         displayName.setName(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME);
