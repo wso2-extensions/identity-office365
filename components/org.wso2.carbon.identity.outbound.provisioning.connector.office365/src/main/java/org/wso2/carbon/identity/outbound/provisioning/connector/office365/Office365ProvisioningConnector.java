@@ -1,20 +1,19 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.outbound.provisioning.connector.office365;
@@ -26,12 +25,14 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -44,9 +45,7 @@ import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +91,8 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
 
             if (provisioningEntity.getEntityType() == ProvisioningEntityType.USER) {
                 if (provisioningEntity.getOperation() == ProvisioningOperation.DELETE) {
-                    deleteUser();
+                    deleteUser(provisioningEntity);
+                    deleteUserPermanently(provisioningEntity);
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.POST) {
                     provisionedId = createUser(provisioningEntity);
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
@@ -111,6 +111,13 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         return identifier;
     }
 
+    /**
+     * Call the create user endpoint of Azure AD and provision the user.
+     *
+     * @param provisioningEntity user to be provisioned
+     * @return string id for the provisioned user
+     * @throws IdentityProvisioningException if the user can not be created in the Azure AD
+     */
     private String createUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
         boolean isDebugEnabled = log.isDebugEnabled();
@@ -119,7 +126,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
             JSONObject user = buildUserAsJson(provisioningEntity);
 
-            HttpPost post = new HttpPost(Office365ConnectorConstants.OFFICE365_CREATE_USER_ENDPOINT);
+            HttpPost post = new HttpPost(Office365ConnectorConstants.OFFICE365_USER_ENDPOINT);
             setAuthorizationHeader(post);
 
             StringEntity requestBody = new StringEntity(user.toString());
@@ -130,33 +137,32 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
 
             try (CloseableHttpResponse response = httpclient.execute(post)) {
 
-                if (isDebugEnabled) {
-                    log.debug("HTTP status " + response.getStatusLine().getStatusCode() + " creating user");
-                }
-
                 JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
                         response.getEntity().getContent())));
-
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
                     provisionedId = jsonResponse.getString("id");
 
                     if (isDebugEnabled) {
-                        log.debug("New record id " + provisionedId);
+                        log.debug("Successfully created an user in the Azure Active Directory. Server responds with " +
+                                EntityUtils.toString(response.getEntity()));
                     }
 
                 } else {
                     String errorMessage = jsonResponse.getJSONObject("error").getString("message");
                     log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
-                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage + "'");
-
+                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                            "'while creating the user " + user.getString(Office365ConnectorConstants.OFFICE365_UPN) +
+                            " in the Azure Active Directory.");
                     if (isDebugEnabled) {
-                        log.error("Request which cause the error : " + readResponse(post));
+                        log.debug("The response received from server : " + jsonResponse.toString());
                     }
 
                 }
             } catch (IOException | JSONException e) {
-                throw new IdentityProvisioningException("Error in invoking provisioning operation for the user", e);
+                throw new IdentityProvisioningException("Error while executing the create operation in user " +
+                        "provisioning", e);
             } finally {
+
                 post.releaseConnection();
             }
 
@@ -175,9 +181,53 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         // TODO: 8/14/18 Implement update user logic
     }
 
-    private void deleteUser() {
-        log.info("Delete user");
-        // TODO: 8/14/18 Implement delete user logic
+    private void deleteUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
+
+        boolean isDebugEnabled = log.isDebugEnabled();
+
+        // Get the provisioned id of deleted user. (Unassigned role)
+        // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
+        String provisionedUserId = provisioningEntity.getIdentifier().getIdentifier();
+
+        try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
+
+            String deleteUserEndpoint = Office365ConnectorConstants.OFFICE365_USER_ENDPOINT + '/' + provisionedUserId;
+            HttpDelete delete = new HttpDelete(deleteUserEndpoint);
+            setAuthorizationHeader(delete);
+
+            try (CloseableHttpResponse response = httpclient.execute(delete)) {
+
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+                    if (isDebugEnabled) {
+                        log.debug("Successfully deleted the provisioned user with id " + provisionedUserId + " from " +
+                                "the Azure" +
+                                "Active Directory");
+                    }
+                } else {
+                    JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
+                            response.getEntity().getContent())));
+                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
+
+                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                            "' while deleting the user with id " + provisionedUserId + " from the Azure Active " +
+                            "Directory.");
+
+                    if (isDebugEnabled) {
+                        log.debug("The response received from server : " + jsonResponse.toString());
+                    }
+
+                }
+            } catch (IOException | JSONException e) {
+                throw new IdentityProvisioningException("Error while executing the delete operation in user " +
+                        "provisioning", e);
+            } finally {
+                delete.releaseConnection();
+            }
+
+        } catch (IOException e) {
+            log.error("Error while closing HttpClient.");
+        }
     }
 
     /**
@@ -228,12 +278,9 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                         log.debug("A valid Access token is received for the tenant " + tenantName);
                     }
                 } else {
-                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " text: "
-                            + response.getStatusLine().getReasonPhrase());
-
-                    if (isDebugEnabled) {
-                        log.debug("Error response : " + readResponse(post));
-                    }
+                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                            + response.getStatusLine().getReasonPhrase() + " with the response " +
+                            EntityUtils.toString(response.getEntity()));
                 }
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while obtaining the access token from the response.", e);
@@ -254,19 +301,17 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         String mailNickNameClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME);
         String upnClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_UPN);
         String immutableIdClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID);
-        Boolean enableDomain = Boolean.parseBoolean(this.configHolder.getValue(Office365ConnectorConstants
-                .OFFICE365_ENABLE_DOMAIN));
-        String domainName = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_DOMAIN);
-
+        String ruleAttributeName = this.configHolder.getValue(Office365ConnectorConstants
+                .OFFICE365_MEMBERSHIP_ATTRIBUTE);
+        String ruleAttributeClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_MEMBERSHIP_VALUE);
+        if (ruleAttributeClaim.isEmpty()) {
+            ruleAttributeClaim = Office365ConnectorConstants.WSO2_ROLE_CLAIM;
+        }
         String displayName = requiredAttributes.get(displayNameClaim);
         String mailNickName = requiredAttributes.get(mailNickNameClaim);
         String immutableId = requiredAttributes.get(immutableIdClaim);
         String upn = requiredAttributes.get(upnClaim);
-
-        // Append the domain name at the end of the claim which given as the user principal name.
-        if (enableDomain && !upn.endsWith("@"+domainName)) {
-            upn = upn + "@" + domainName;
-        }
+        String ruleAttributeValue = requiredAttributes.get(ruleAttributeClaim);
 
         // Create a json object corresponding to the attributes of the user in the request.
         JSONObject passwordProfile = new JSONObject();
@@ -277,12 +322,13 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         user.put(Office365ConnectorConstants.ACCOUNT_ENABLED, true);
         user.put(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME, displayName);
         user.put(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME, mailNickName);
-        user.put(Office365ConnectorConstants.OFFICE365_UPN, upn);
+        user.put(Office365ConnectorConstants.OFFICE365_UPN, getDomainSpecificUpn(upn));
         user.put(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID, immutableId);
         user.put(Office365ConnectorConstants.PASSWORD_PROFILE, passwordProfile);
+        user.put(ruleAttributeName,ruleAttributeValue);
 
-        if(log.isDebugEnabled()){
-            log.debug("An user object is created. " + user.toString());
+        if (log.isDebugEnabled()) {
+            log.debug("A user object is created. " + user.toString());
         }
         return user;
     }
@@ -308,17 +354,64 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         }
     }
 
-    private String readResponse(HttpPost post) throws IOException {
-        try (InputStream is = post.getEntity().getContent()) {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-            StringBuilder response = new StringBuilder();
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
+    private String getDomainSpecificUpn(String upn) {
+
+        Boolean enableDomain = Boolean.parseBoolean(this.configHolder.getValue(Office365ConnectorConstants
+                .OFFICE365_ENABLE_DOMAIN));
+        String domainName = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_DOMAIN);
+
+        // Append the domain name at the end of the claim which given as the user principal name.
+        if (enableDomain && !upn.endsWith("@" + domainName)) {
+            upn = upn + "@" + domainName;
+        }
+        return upn;
+    }
+
+    private void deleteUserPermanently(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
+
+        boolean isDebugEnabled = log.isDebugEnabled();
+
+        // Get the provisioned id of deleted user. (Unassigned role)
+        // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
+        String provisionedUserId = provisioningEntity.getIdentifier().getIdentifier();
+
+        try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
+
+            String deleteUserEndpoint = Office365ConnectorConstants.OFFICE365_DELETE_ENDPOINT + '/' + provisionedUserId;
+            HttpDelete delete = new HttpDelete(deleteUserEndpoint);
+            setAuthorizationHeader(delete);
+
+            try (CloseableHttpResponse response = httpclient.execute(delete)) {
+
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+                    if (isDebugEnabled) {
+                        log.debug("Permanently removed the deleted user with id " + provisionedUserId +
+                                " in the Azure Active Directory");
+                    }
+                } else {
+                    JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
+                            response.getEntity().getContent())));
+                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
+
+                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                            "' while permanently removing the user with id " + provisionedUserId +
+                            " in the Azure Active Directory.");
+
+                    if (isDebugEnabled) {
+                        log.debug("The response received from server : " + jsonResponse.toString());
+                    }
+
+                }
+            } catch (IOException | JSONException e) {
+                throw new IdentityProvisioningException("Error while executing the delete operation in user " +
+                        "provisioning", e);
+            } finally {
+                delete.releaseConnection();
             }
-            rd.close();
-            return response.toString();
+
+        } catch (IOException e) {
+            log.error("Error while closing HttpClient.");
         }
     }
 

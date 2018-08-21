@@ -1,20 +1,19 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.outbound.provisioning.connector.office365;
@@ -30,10 +29,15 @@ public class Office365ConnectorConstants {
     public static final String OFFICE365_ENABLE_DOMAIN = "office365-enable-domain-in-upn";
     public static final String OFFICE365_TENANT = "office365-tenant";
     public static final String OFFICE365_DOMAIN = "office365-domain";
+    public static final String OFFICE365_MEMBERSHIP_ATTRIBUTE = "office-365-membership-rule-attribute";
+    public static final String OFFICE365_MEMBERSHIP_VALUE= "office-365-membership-rule-value";
+
+    public static final String WSO2_ROLE_CLAIM = "http://wso2.org/claims/role";
 
     public static final String OFFICE365_BASE_URL = "https://login.microsoftonline.com";
     public static final String OFFICE365_TOKEN_ENDPOINT = "/oauth2/v2.0/token";
-    public static final String OFFICE365_CREATE_USER_ENDPOINT = "https://graph.microsoft.com/v1.0/users";
+    public static final String OFFICE365_USER_ENDPOINT = "https://graph.microsoft.com/v1.0/users";
+    public static final String OFFICE365_DELETE_ENDPOINT = "https://graph.microsoft.com/beta/directory/deleteditems";
 
     public static final String OFFICE365_OAUTH_SCOPE = "scope";
     public static final String OFFICE365_OAUTH_GRANT = "grant_type";
