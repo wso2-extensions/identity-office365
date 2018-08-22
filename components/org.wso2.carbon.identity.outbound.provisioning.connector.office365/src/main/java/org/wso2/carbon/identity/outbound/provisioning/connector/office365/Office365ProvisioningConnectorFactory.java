@@ -85,6 +85,8 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         Property immutableId = new Property();
         immutableId.setName(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID);
         immutableId.setDisplayName("Immutable ID");
+        immutableId.setDescription("Associate an on-premises Active Directory user account to their Azure AD user " +
+                "object");
         immutableId.setDisplayOrder(5);
         immutableId.setRequired(true);
 
@@ -103,12 +105,14 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         Property displayName = new Property();
         displayName.setName(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME);
         displayName.setDisplayName("Display Name");
+        displayName.setDescription("The name to display in the address book for the user");
         displayName.setDisplayOrder(8);
         displayName.setRequired(true);
 
         Property mailNickName = new Property();
         mailNickName.setName(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME);
         mailNickName.setDisplayName("Email Nickname");
+        mailNickName.setDescription("The mail alias for the user");
         mailNickName.setDisplayOrder(9);
         mailNickName.setRequired(true);
 
@@ -117,7 +121,7 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         ruleAttribute.setDisplayName("Dynamic Membership Rule Attribute");
         ruleAttribute.setDisplayOrder(10);
         ruleAttribute.setDescription("This attribute is considered when determine membership of users.");
-        ruleAttribute.setRequired(true);
+        ruleAttribute.setRequired(false);
 
 
         Property ruleValue = new Property();

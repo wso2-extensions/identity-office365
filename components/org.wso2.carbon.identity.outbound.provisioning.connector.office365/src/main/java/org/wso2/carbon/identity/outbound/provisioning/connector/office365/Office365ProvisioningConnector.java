@@ -62,6 +62,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
 
     @Override
     public void init(Property[] provisioningProperties) throws IdentityProvisioningException {
+
         Properties configs = new Properties();
 
         if (provisioningProperties != null && provisioningProperties.length > 0) {
@@ -82,6 +83,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
     @Override
     public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
             throws IdentityProvisioningException {
+
         String provisionedId = null;
 
         if (provisioningEntity != null) {
@@ -91,13 +93,13 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 return null;
             }
 
-            if (provisioningEntity.getEntityType() == ProvisioningEntityType.USER) {
-                if (provisioningEntity.getOperation() == ProvisioningOperation.DELETE) {
+            if (ProvisioningEntityType.USER == provisioningEntity.getEntityType()) {
+                if (ProvisioningOperation.DELETE == provisioningEntity.getOperation()) {
                     deleteUser(provisioningEntity);
                     deleteUserPermanently(provisioningEntity);
-                } else if (provisioningEntity.getOperation() == ProvisioningOperation.POST) {
+                } else if (ProvisioningOperation.POST == provisioningEntity.getOperation()) {
                     provisionedId = createUser(provisioningEntity);
-                } else if (provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
+                } else if (ProvisioningOperation.PUT == provisioningEntity.getOperation()) {
                     updateUser();
                 } else {
                     log.warn("Unsupported provisioning operation " + provisioningEntity.getOperation() + " for entity" +
@@ -123,12 +125,11 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
      */
     private String createUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
-        boolean isDebugEnabled = log.isDebugEnabled();
         String provisionedId = null;
 
         try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
-            JSONObject user = buildUserAsJson(provisioningEntity);
 
+            JSONObject user = buildUserAsJson(provisioningEntity);
             HttpPost post = new HttpPost(Office365ConnectorConstants.OFFICE365_USER_ENDPOINT);
             setAuthorizationHeader(post);
 
@@ -145,7 +146,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
                     provisionedId = jsonResponse.getString("id");
 
-                    if (isDebugEnabled) {
+                    if (log.isDebugEnabled()) {
                         log.debug("Successfully created an user in the Azure Active Directory. Server responds with " +
                                 EntityUtils.toString(response.getEntity()));
                     }
@@ -153,13 +154,15 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                     String errorMessage = jsonResponse.getJSONObject("error").getString("message");
                     log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
                             + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
-                            "'while creating the user " + user.getString(Office365ConnectorConstants.OFFICE365_UPN) +
+                            "' while creating the user " + user.getString(Office365ConnectorConstants.OFFICE365_UPN) +
                             " in the Azure Active Directory.");
 
-                    if (isDebugEnabled) {
+                    if (log.isDebugEnabled()) {
                         log.debug("The response received from server : " + jsonResponse.toString());
                     }
                 }
+            } catch (NullPointerException e) {
+                throw new IdentityProvisioningException(e.getMessage());
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while executing the create operation in user " +
                         "provisioning", e);
@@ -167,7 +170,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 post.releaseConnection();
             }
 
-            if (isDebugEnabled) {
+            if (log.isDebugEnabled()) {
                 log.debug("Returning provisioned user's ID: " + provisionedId);
             }
         } catch (IOException e) {
@@ -189,8 +192,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
      */
     private void deleteUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
-        boolean isDebugEnabled = log.isDebugEnabled();
-
         // Get the provisioned id of deleted user. (Unassigned role)
         // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
         String provisionedUserId = provisioningEntity.getIdentifier().getIdentifier();
@@ -204,7 +205,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             try (CloseableHttpResponse response = httpclient.execute(delete)) {
 
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
-                    if (isDebugEnabled) {
+                    if (log.isDebugEnabled()) {
                         log.debug("Successfully deleted the provisioned user with id " + provisionedUserId + " from " +
                                 "the Azure Active Directory");
                     }
@@ -218,7 +219,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                             "' while deleting the user with id " + provisionedUserId + " from the Azure Active " +
                             "Directory.");
 
-                    if (isDebugEnabled) {
+                    if (log.isDebugEnabled()) {
                         log.debug("The response received from server : " + jsonResponse.toString());
                     }
                 }
@@ -236,12 +237,10 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
     /**
      * Remove a provisioned user from the deleted directory to do a permanent deletion of the user.
      *
-     * @param provisioningEntity    the user being deleted.
+     * @param provisioningEntity the user being deleted.
      * @throws IdentityProvisioningException if the user can not be deleted.
      */
     private void deleteUserPermanently(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
-
-        boolean isDebugEnabled = log.isDebugEnabled();
 
         // Get the provisioned id of deleted user. (Unassigned role)
         // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
@@ -256,7 +255,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             try (CloseableHttpResponse response = httpclient.execute(delete)) {
 
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
-                    if (isDebugEnabled) {
+                    if (log.isDebugEnabled()) {
                         log.debug("Permanently removed the deleted user with id " + provisionedUserId +
                                 " in the Azure Active Directory");
                     }
@@ -270,7 +269,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                             "' while permanently removing the user with id " + provisionedUserId +
                             " in the Azure Active Directory.");
 
-                    if (isDebugEnabled) {
+                    if (log.isDebugEnabled()) {
                         log.debug("The response received from server : " + jsonResponse.toString());
                     }
 
@@ -294,7 +293,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
      * @throws IdentityProvisioningException If the access token can not be obtained from the API
      */
     private String getAccessToken() throws IdentityProvisioningException {
-        boolean isDebugEnabled = log.isDebugEnabled();
 
         String clientId = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_CLIENT_ID);
         String clientSecret = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_CLIENT_SECRET);
@@ -331,7 +329,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                             new JSONTokener(new InputStreamReader(response.getEntity().getContent())));
                     accessToken = jsonResponse.getString("access_token");
 
-                    if (isDebugEnabled) {
+                    if (log.isDebugEnabled()) {
                         log.debug("A valid Access token is received for the tenant " + tenantName);
                     }
                 } else {
@@ -350,10 +348,9 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         return accessToken;
     }
 
-    private JSONObject buildUserAsJson(ProvisioningEntity provisioningEntity) {
+    private JSONObject buildUserAsJson(ProvisioningEntity provisioningEntity) throws NullPointerException {
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity.getAttributes());
-
         String displayNameClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME);
         String mailNickNameClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME);
         String upnClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_UPN);
@@ -361,7 +358,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         String ruleAttributeName = this.configHolder.getValue(Office365ConnectorConstants
                 .OFFICE365_MEMBERSHIP_ATTRIBUTE);
         String ruleAttributeClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_MEMBERSHIP_VALUE);
-        if (ruleAttributeClaim.isEmpty()) {
+        if (ruleAttributeClaim.isEmpty() && !ruleAttributeName.isEmpty()) {
             ruleAttributeClaim = Office365ConnectorConstants.WSO2_ROLE_CLAIM;
         }
         String displayName = requiredAttributes.get(displayNameClaim);
@@ -370,24 +367,31 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         String upn = requiredAttributes.get(upnClaim);
         String ruleAttributeValue = requiredAttributes.get(ruleAttributeClaim);
 
-        // Create a json object corresponding to the attributes of the user in the request.
-        JSONObject passwordProfile = new JSONObject();
-        passwordProfile.put(Office365ConnectorConstants.FORCE_CHANGE_PASSWORD, false);
-        passwordProfile.put(Office365ConnectorConstants.PASSWORD, "password123");
+        if (displayName == null || mailNickName == null || immutableId == null || upn == null) {
+            throw new NullPointerException("One or more of the mandatory user attributes: display name, mail " +
+                    "nickname, immutable id, user principal name do not have a value.");
+        } else {
+            // Create a json object corresponding to the attributes of the user in the request.
+            JSONObject passwordProfile = new JSONObject();
+            passwordProfile.put(Office365ConnectorConstants.FORCE_CHANGE_PASSWORD, false);
+            passwordProfile.put(Office365ConnectorConstants.PASSWORD, "DV0IjoiN19adWYx");
 
-        JSONObject user = new JSONObject();
-        user.put(Office365ConnectorConstants.ACCOUNT_ENABLED, true);
-        user.put(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME, displayName);
-        user.put(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME, mailNickName);
-        user.put(Office365ConnectorConstants.OFFICE365_UPN, getDomainSpecificUpn(upn));
-        user.put(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID, immutableId);
-        user.put(Office365ConnectorConstants.PASSWORD_PROFILE, passwordProfile);
-        user.put(ruleAttributeName, ruleAttributeValue);
+            JSONObject user = new JSONObject();
+            user.put(Office365ConnectorConstants.ACCOUNT_ENABLED, true);
+            user.put(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME, displayName);
+            user.put(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME, mailNickName);
+            user.put(Office365ConnectorConstants.OFFICE365_UPN, getDomainSpecificUpn(upn));
+            user.put(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID, immutableId);
+            user.put(Office365ConnectorConstants.PASSWORD_PROFILE, passwordProfile);
+            if (!ruleAttributeName.isEmpty()) {
+                user.put(ruleAttributeName, ruleAttributeValue);
+            }
 
-        if (log.isDebugEnabled()) {
-            log.debug("A user object is created. " + user.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("A user object is created. " + user.toString());
+            }
+            return user;
         }
-        return user;
     }
 
     private void setAuthorizationHeader(HttpRequestBase httpMethod) throws IdentityProvisioningException {
@@ -425,4 +429,3 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
     }
 
 }
-
