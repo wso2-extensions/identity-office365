@@ -38,10 +38,10 @@ public class Office365ConnectorServiceComponent {
             log.debug("Activating Office365ConnectorServiceComponent");
         }
         try {
-            Office365ProvisioningConnectorFactory provisioningConnectorFactory = new Office365ProvisioningConnectorFactory();
-            context.getBundleContext().registerService(
-                    AbstractProvisioningConnectorFactory.class.getName(),
-                        provisioningConnectorFactory, null);
+            Office365ProvisioningConnectorFactory provisioningConnectorFactory = new
+                    Office365ProvisioningConnectorFactory();
+            context.getBundleContext().registerService(AbstractProvisioningConnectorFactory.class.getName(),
+                    provisioningConnectorFactory, null);
             if (log.isDebugEnabled()) {
                 log.debug("Office365 Identity Provisioning Connector bundle is activated");
             }

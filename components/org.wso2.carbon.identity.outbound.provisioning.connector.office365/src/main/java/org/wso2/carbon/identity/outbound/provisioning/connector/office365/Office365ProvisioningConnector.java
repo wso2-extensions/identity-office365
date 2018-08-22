@@ -52,6 +52,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * This class handles the Office365 user provisioning operations to Azure AD.
+ */
 public class Office365ProvisioningConnector extends AbstractOutboundProvisioningConnector {
 
     private static final Log log = LogFactory.getLog(Office365ProvisioningConnector.class);
@@ -63,7 +66,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
 
         if (provisioningProperties != null && provisioningProperties.length > 0) {
             for (Property property : provisioningProperties) {
-                //Add your code to add property to the configHolder
                 configs.put(property.getName(), property.getValue());
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
                         .getName())) {
@@ -98,10 +100,11 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
                     updateUser();
                 } else {
-                    log.warn("Unsupported provisioning operation.");
+                    log.warn("Unsupported provisioning operation " + provisioningEntity.getOperation() + " for entity" +
+                            "type " + provisioningEntity.getEntityType());
                 }
             } else {
-                log.warn("Unsupported provisioning operation.");
+                log.warn("Unsupported provisioning entity type " + provisioningEntity.getEntityType());
             }
         }
 
@@ -146,30 +149,27 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                         log.debug("Successfully created an user in the Azure Active Directory. Server responds with " +
                                 EntityUtils.toString(response.getEntity()));
                     }
-
                 } else {
                     String errorMessage = jsonResponse.getJSONObject("error").getString("message");
                     log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
                             + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
                             "'while creating the user " + user.getString(Office365ConnectorConstants.OFFICE365_UPN) +
                             " in the Azure Active Directory.");
+
                     if (isDebugEnabled) {
                         log.debug("The response received from server : " + jsonResponse.toString());
                     }
-
                 }
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while executing the create operation in user " +
                         "provisioning", e);
             } finally {
-
                 post.releaseConnection();
             }
 
             if (isDebugEnabled) {
                 log.debug("Returning provisioned user's ID: " + provisionedId);
             }
-
         } catch (IOException e) {
             log.error("Error while closing HttpClient.");
         }
@@ -181,6 +181,12 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         // TODO: 8/14/18 Implement update user logic
     }
 
+    /**
+     * Delete provisioned users from the Azure AD.
+     *
+     * @param provisioningEntity the user being removed
+     * @throws IdentityProvisioningException if the user deletion is failed.
+     */
     private void deleteUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
         boolean isDebugEnabled = log.isDebugEnabled();
@@ -200,8 +206,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
                     if (isDebugEnabled) {
                         log.debug("Successfully deleted the provisioned user with id " + provisionedUserId + " from " +
-                                "the Azure" +
-                                "Active Directory");
+                                "the Azure Active Directory");
                     }
                 } else {
                     JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
@@ -212,6 +217,58 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                             + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
                             "' while deleting the user with id " + provisionedUserId + " from the Azure Active " +
                             "Directory.");
+
+                    if (isDebugEnabled) {
+                        log.debug("The response received from server : " + jsonResponse.toString());
+                    }
+                }
+            } catch (IOException | JSONException e) {
+                throw new IdentityProvisioningException("Error while executing the delete operation in user " +
+                        "provisioning", e);
+            } finally {
+                delete.releaseConnection();
+            }
+        } catch (IOException e) {
+            log.error("Error while closing HttpClient.");
+        }
+    }
+
+    /**
+     * Remove a provisioned user from the deleted directory to do a permanent deletion of the user.
+     *
+     * @param provisioningEntity    the user being deleted.
+     * @throws IdentityProvisioningException if the user can not be deleted.
+     */
+    private void deleteUserPermanently(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
+
+        boolean isDebugEnabled = log.isDebugEnabled();
+
+        // Get the provisioned id of deleted user. (Unassigned role)
+        // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
+        String provisionedUserId = provisioningEntity.getIdentifier().getIdentifier();
+
+        try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
+
+            String deleteUserEndpoint = Office365ConnectorConstants.OFFICE365_DELETE_ENDPOINT + '/' + provisionedUserId;
+            HttpDelete delete = new HttpDelete(deleteUserEndpoint);
+            setAuthorizationHeader(delete);
+
+            try (CloseableHttpResponse response = httpclient.execute(delete)) {
+
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+                    if (isDebugEnabled) {
+                        log.debug("Permanently removed the deleted user with id " + provisionedUserId +
+                                " in the Azure Active Directory");
+                    }
+                } else {
+                    JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
+                            response.getEntity().getContent())));
+                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
+
+                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                            "' while permanently removing the user with id " + provisionedUserId +
+                            " in the Azure Active Directory.");
 
                     if (isDebugEnabled) {
                         log.debug("The response received from server : " + jsonResponse.toString());
@@ -316,7 +373,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         // Create a json object corresponding to the attributes of the user in the request.
         JSONObject passwordProfile = new JSONObject();
         passwordProfile.put(Office365ConnectorConstants.FORCE_CHANGE_PASSWORD, false);
-        passwordProfile.put(Office365ConnectorConstants.PASSWORD, "IiLCJhcHBpZCI6ImMw");
+        passwordProfile.put(Office365ConnectorConstants.PASSWORD, "password123");
 
         JSONObject user = new JSONObject();
         user.put(Office365ConnectorConstants.ACCOUNT_ENABLED, true);
@@ -325,7 +382,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         user.put(Office365ConnectorConstants.OFFICE365_UPN, getDomainSpecificUpn(upn));
         user.put(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID, immutableId);
         user.put(Office365ConnectorConstants.PASSWORD_PROFILE, passwordProfile);
-        user.put(ruleAttributeName,ruleAttributeValue);
+        user.put(ruleAttributeName, ruleAttributeValue);
 
         if (log.isDebugEnabled()) {
             log.debug("A user object is created. " + user.toString());
@@ -365,54 +422,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             upn = upn + "@" + domainName;
         }
         return upn;
-    }
-
-    private void deleteUserPermanently(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
-
-        boolean isDebugEnabled = log.isDebugEnabled();
-
-        // Get the provisioned id of deleted user. (Unassigned role)
-        // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
-        String provisionedUserId = provisioningEntity.getIdentifier().getIdentifier();
-
-        try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
-
-            String deleteUserEndpoint = Office365ConnectorConstants.OFFICE365_DELETE_ENDPOINT + '/' + provisionedUserId;
-            HttpDelete delete = new HttpDelete(deleteUserEndpoint);
-            setAuthorizationHeader(delete);
-
-            try (CloseableHttpResponse response = httpclient.execute(delete)) {
-
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
-                    if (isDebugEnabled) {
-                        log.debug("Permanently removed the deleted user with id " + provisionedUserId +
-                                " in the Azure Active Directory");
-                    }
-                } else {
-                    JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
-                            response.getEntity().getContent())));
-                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
-
-                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
-                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
-                            "' while permanently removing the user with id " + provisionedUserId +
-                            " in the Azure Active Directory.");
-
-                    if (isDebugEnabled) {
-                        log.debug("The response received from server : " + jsonResponse.toString());
-                    }
-
-                }
-            } catch (IOException | JSONException e) {
-                throw new IdentityProvisioningException("Error while executing the delete operation in user " +
-                        "provisioning", e);
-            } finally {
-                delete.releaseConnection();
-            }
-
-        } catch (IOException e) {
-            log.error("Error while closing HttpClient.");
-        }
     }
 
 }

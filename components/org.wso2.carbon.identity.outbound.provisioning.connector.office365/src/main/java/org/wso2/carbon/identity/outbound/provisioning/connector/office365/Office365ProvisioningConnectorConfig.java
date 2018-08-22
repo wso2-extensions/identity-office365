@@ -18,32 +18,17 @@
 
 package org.wso2.carbon.identity.outbound.provisioning.connector.office365;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
+/**
+ * This class contains the configuration details of Office365 connector.
+ */
 public class Office365ProvisioningConnectorConfig {
 
-    private static final Log log = LogFactory.getLog(Office365ProvisioningConnectorConfig.class);
     private Properties configs;
 
     public Office365ProvisioningConnectorConfig(Properties configs) {
         this.configs = configs;
-    }
-
-    public List<String> getRequiredAttributeNames() {
-        List<String> requiredAttributeList = new ArrayList<String>();
-        //Add your code to get the required attributes names
-        return requiredAttributeList;
-    }
-
-    public String getUserIdClaim() throws IdentityProvisioningException {
-        //Add the your code to get the userID claim
-        return null;
     }
 
     public String getValue(String key) {

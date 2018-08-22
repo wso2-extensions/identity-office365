@@ -28,6 +28,9 @@ import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class creates the Office365 connector factory.
+ */
 public class Office365ProvisioningConnectorFactory extends AbstractProvisioningConnectorFactory {
 
     private static final Log log = LogFactory.getLog(Office365ProvisioningConnectorFactory.class);

@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.identity.outbound.provisioning.connector.office365;
 
+/**
+ * This class contains the constant values required for the Office365 provisioning connector.
+ */
 public class Office365ConnectorConstants {
 
     public static final String OFFICE365_CLIENT_ID = "client_id";
@@ -30,7 +33,7 @@ public class Office365ConnectorConstants {
     public static final String OFFICE365_TENANT = "office365-tenant";
     public static final String OFFICE365_DOMAIN = "office365-domain";
     public static final String OFFICE365_MEMBERSHIP_ATTRIBUTE = "office-365-membership-rule-attribute";
-    public static final String OFFICE365_MEMBERSHIP_VALUE= "office-365-membership-rule-value";
+    public static final String OFFICE365_MEMBERSHIP_VALUE = "office-365-membership-rule-value";
 
     public static final String WSO2_ROLE_CLAIM = "http://wso2.org/claims/role";
 
