@@ -32,11 +32,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
@@ -110,7 +110,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             }
         }
 
-        // creates a provisioned identifier for the provisioned user.
+        // Creates a provisioned identifier for the provisioned user.
         ProvisionedIdentifier identifier = new ProvisionedIdentifier();
         identifier.setIdentifier(provisionedId);
         return identifier;
@@ -148,7 +148,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
 
                     if (log.isDebugEnabled()) {
                         log.debug("Successfully created an user in the Azure Active Directory. Server responds with " +
-                                EntityUtils.toString(response.getEntity()));
+                                jsonResponse.toString());
                     }
                 } else {
                     String errorMessage = jsonResponse.getJSONObject("error").getString("message");
@@ -298,14 +298,14 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         String clientSecret = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_CLIENT_SECRET);
         String tenantName = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_TENANT);
 
-        // Generate the endpoint using the base url and the user's tenant name
+        // Generate the endpoint using the base url and the user's tenant name.
         String tokenGrantUrl = Office365ConnectorConstants.OFFICE365_BASE_URL + "/" + tenantName +
                 Office365ConnectorConstants.OFFICE365_TOKEN_ENDPOINT;
 
         String accessToken = null;
         try (CloseableHttpClient httpclient = HttpClientBuilder.create().useSystemProperties().build()) {
 
-            // Define the path parameters of the access token grant endpoint
+            // Define the path parameters of the access token grant endpoint.
             List<NameValuePair> urlParameters = new ArrayList<>();
             urlParameters.add(new BasicNameValuePair(Office365ConnectorConstants.OFFICE365_CLIENT_ID, clientId));
             urlParameters.add(new BasicNameValuePair(Office365ConnectorConstants.OFFICE365_OAUTH_SCOPE,
@@ -323,10 +323,9 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
 
             try (CloseableHttpResponse response = httpclient.execute(post)) {
 
+                JSONObject jsonResponse = new JSONObject(
+                        new JSONTokener(new InputStreamReader(response.getEntity().getContent())));
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-
-                    JSONObject jsonResponse = new JSONObject(
-                            new JSONTokener(new InputStreamReader(response.getEntity().getContent())));
                     accessToken = jsonResponse.getString("access_token");
 
                     if (log.isDebugEnabled()) {
@@ -335,7 +334,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 } else {
                     log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
                             + response.getStatusLine().getReasonPhrase() + " with the response " +
-                            EntityUtils.toString(response.getEntity()));
+                            jsonResponse.toString());
                 }
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while obtaining the access token from the response.", e);
@@ -396,15 +395,13 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
 
     private void setAuthorizationHeader(HttpRequestBase httpMethod) throws IdentityProvisioningException {
 
-        boolean isDebugEnabled = log.isDebugEnabled();
-
         String accessToken = getAccessToken();
 
         if (!accessToken.isEmpty()) {
             httpMethod.addHeader(Office365ConnectorConstants.AUTHORIZATION_HEADER_NAME,
                     Office365ConnectorConstants.AUTHORIZATION_HEADER_BEARER + " " + accessToken);
 
-            if (isDebugEnabled) {
+            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable("AccessToken")) {
                 log.debug("Setting authorization header for method: " + httpMethod.getMethod() + " as follows,");
                 Header authorizationHeader = httpMethod
                         .getLastHeader(Office365ConnectorConstants.AUTHORIZATION_HEADER_NAME);
