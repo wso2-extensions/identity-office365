@@ -93,6 +93,7 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         Property upn = new Property();
         upn.setName(Office365ConnectorConstants.OFFICE365_UPN);
         upn.setDisplayName("User Principal Name");
+        upn.setDescription("Internet-style login name ending with the domain name.");
         upn.setDisplayOrder(6);
         upn.setRequired(true);
 
