@@ -85,7 +85,7 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         Property immutableId = new Property();
         immutableId.setName(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID);
         immutableId.setDisplayName("Immutable ID");
-        immutableId.setDescription("A claim which will give a unique identifier to the user account in Azure AD." +
+        immutableId.setDescription("A claim which will give a unique identifier to the user account in Azure AD" +
                 " [Example : http://wso2.org/claims/userid]");
         immutableId.setDisplayOrder(5);
         immutableId.setRequired(true);
@@ -93,14 +93,14 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         Property upn = new Property();
         upn.setName(Office365ConnectorConstants.OFFICE365_UPN);
         upn.setDisplayName("User Principal Name");
-        upn.setDescription("Internet-style login name ending with the domain name.");
+        upn.setDescription("Internet-style login name ending with the domain name");
         upn.setDisplayOrder(6);
         upn.setRequired(true);
 
         Property domainEnabled = new Property();
         domainEnabled.setName(Office365ConnectorConstants.OFFICE365_ENABLE_DOMAIN);
         domainEnabled.setDisplayName("Append Domain Name to UPN");
-        domainEnabled.setDescription("If enabled domain name will be appended to User Principal Name. [Example: " +
+        domainEnabled.setDescription("If enabled domain name will be appended to User Principal Name [Example: " +
                 "upnValue@domainName]");
         domainEnabled.setDisplayOrder(7);
 
@@ -130,7 +130,7 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         ruleValue.setName(Office365ConnectorConstants.OFFICE365_MEMBERSHIP_VALUE);
         ruleValue.setDisplayName("Dynamic Membership Rule Value");
         ruleValue.setDisplayOrder(11);
-        ruleValue.setDescription("If this is not set, 'http://wso2.org/claims/role' will be taken as default.");
+        ruleValue.setDescription("If this is not set, 'http://wso2.org/claims/role' will be taken as default");
         ruleValue.setRequired(false);
 
         properties.add(clientId);
