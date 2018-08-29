@@ -17,8 +17,8 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
@@ -28,9 +28,9 @@
     </parent>
 
     <groupId>org.wso2.carbon.identity.outbound.provisioning.connector.office365</groupId>
-    <artifactId>identity-outbound-provisioning-office365</artifactId>
+    <artifactId>identity-office365</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Identity Provisioning Connector for Office365</name>
 
@@ -273,7 +273,7 @@
 
     <properties>
         <carbon.identity.framework.import.version.range>[5.0.0, 6.0.0)</carbon.identity.framework.import.version.range>
-        <carbon.identity.framework.version>5.5.0</carbon.identity.framework.version>
+        <carbon.identity.framework.version>5.12.118</carbon.identity.framework.version>
         <identity.outbound.provisioning.office365.export.version>${project.version}
         </identity.outbound.provisioning.office365.export.version>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 2.0.0)</carbon.kernel.registry.imp.pkg.version>
