@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.outbound.provisioning.connector.office365;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -36,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
@@ -166,8 +168,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while executing the create operation in user " +
                         "provisioning", e);
-            } finally {
-                post.releaseConnection();
             }
 
             if (log.isDebugEnabled()) {
@@ -226,8 +226,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while executing the delete operation in user " +
                         "provisioning", e);
-            } finally {
-                delete.releaseConnection();
             }
         } catch (IOException e) {
             log.error("Error while closing HttpClient.");
@@ -277,8 +275,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while executing the delete operation in user " +
                         "provisioning", e);
-            } finally {
-                delete.releaseConnection();
             }
 
         } catch (IOException e) {
@@ -338,8 +334,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 }
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while obtaining the access token from the response.", e);
-            } finally {
-                post.releaseConnection();
             }
         } catch (IOException e) {
             log.error("Error while closing HttpClient.");
@@ -373,7 +367,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             // Create a json object corresponding to the attributes of the user in the request.
             JSONObject passwordProfile = new JSONObject();
             passwordProfile.put(Office365ConnectorConstants.FORCE_CHANGE_PASSWORD, false);
-            passwordProfile.put(Office365ConnectorConstants.PASSWORD, "DV0IjoiN19adWYx");
+            passwordProfile.put(Office365ConnectorConstants.PASSWORD, RandomStringUtils.randomAlphanumeric(12));
 
             JSONObject user = new JSONObject();
             user.put(Office365ConnectorConstants.ACCOUNT_ENABLED, true);
@@ -401,7 +395,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             httpMethod.addHeader(Office365ConnectorConstants.AUTHORIZATION_HEADER_NAME,
                     Office365ConnectorConstants.AUTHORIZATION_HEADER_BEARER + " " + accessToken);
 
-            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable("AccessToken")) {
+            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.ACCESS_TOKEN)) {
                 log.debug("Setting authorization header for method: " + httpMethod.getMethod() + " as follows,");
                 Header authorizationHeader = httpMethod
                         .getLastHeader(Office365ConnectorConstants.AUTHORIZATION_HEADER_NAME);
