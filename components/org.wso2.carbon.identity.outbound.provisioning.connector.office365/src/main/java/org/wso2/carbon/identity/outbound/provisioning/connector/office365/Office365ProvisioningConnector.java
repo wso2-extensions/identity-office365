@@ -180,7 +180,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
     }
 
     private void updateUser() {
-        log.info("Update user");
+        log.warn("Update user is not implemented.");
         // TODO: 8/14/18 Implement update user logic
     }
 
