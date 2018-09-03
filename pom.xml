@@ -273,6 +273,7 @@
 
     <properties>
         <carbon.identity.framework.import.version.range>[5.0.0, 6.0.0)</carbon.identity.framework.import.version.range>
+        <carbon.identity.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.package.import.version.range>
         <carbon.identity.framework.version>5.12.118</carbon.identity.framework.version>
         <identity.outbound.provisioning.office365.export.version>${project.version}
         </identity.outbound.provisioning.office365.export.version>

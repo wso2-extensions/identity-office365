@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.outbound.provisioning.connector.office365;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -129,7 +129,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
 
         String provisionedId = null;
 
-        try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
+        try (CloseableHttpClient httpclient = HttpClientBuilder.create().useSystemProperties().build()) {
 
             JSONObject user = buildUserAsJson(provisioningEntity);
             HttpPost post = new HttpPost(Office365ConnectorConstants.OFFICE365_USER_ENDPOINT);
@@ -196,7 +196,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
         String provisionedUserId = provisioningEntity.getIdentifier().getIdentifier();
 
-        try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
+        try (CloseableHttpClient httpclient = HttpClientBuilder.create().useSystemProperties().build()) {
 
             String deleteUserEndpoint = Office365ConnectorConstants.OFFICE365_USER_ENDPOINT + '/' + provisionedUserId;
             HttpDelete delete = new HttpDelete(deleteUserEndpoint);
@@ -244,7 +244,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
         String provisionedUserId = provisioningEntity.getIdentifier().getIdentifier();
 
-        try (CloseableHttpClient httpclient = HttpClientBuilder.create().build()) {
+        try (CloseableHttpClient httpclient = HttpClientBuilder.create().useSystemProperties().build()) {
 
             String deleteUserEndpoint = Office365ConnectorConstants.OFFICE365_DELETE_ENDPOINT + '/' + provisionedUserId;
             HttpDelete delete = new HttpDelete(deleteUserEndpoint);
