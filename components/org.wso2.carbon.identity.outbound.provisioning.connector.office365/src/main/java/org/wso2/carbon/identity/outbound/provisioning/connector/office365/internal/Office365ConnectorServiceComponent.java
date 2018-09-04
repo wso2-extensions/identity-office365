@@ -21,18 +21,23 @@ package org.wso2.carbon.identity.outbound.provisioning.connector.office365.inter
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.identity.outbound.provisioning.connector.office365.Office365ProvisioningConnectorFactory;
 import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactory;
 
 /**
- * @scr.component name=
- * "org.wso2.carbon.identity.outbound.provisioning.connector.office365.internal.Office365ConnectorServiceComponent"
- * immediate="true"
+ * Registers the connector as an osgi component.
  */
+@Component(
+        name = "identity.outbound.provisioning.office365.component",
+        immediate = true
+)
 public class Office365ConnectorServiceComponent {
 
     private static Log log = LogFactory.getLog(Office365ConnectorServiceComponent.class);
 
+    @Activate
     protected void activate(ComponentContext context) {
         if (log.isDebugEnabled()) {
             log.debug("Activating Office365ConnectorServiceComponent");

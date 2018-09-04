@@ -267,7 +267,11 @@
                 <artifactId>json</artifactId>
                 <version>${json.wso2.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+                <version>${apache.felix.scr.ds.annotations.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -288,12 +292,13 @@
         </httpcomponents-httpclient.imp.pkg.version.range>
         <httpcore.version>4.3.3.wso2v1</httpcore.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
-        <maven.scr.plugin.version>1.7.2</maven.scr.plugin.version>
+        <maven.scr.plugin.version>1.24.0</maven.scr.plugin.version>
         <maven.bundle.plugin.version>2.4.0</maven.bundle.plugin.version>
         <maven.compiler.plugin.version>2.3.1</maven.compiler.plugin.version>
         <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
         <json.wso2.version.range>[3.0.0.wso2v1, 4.0.0)</json.wso2.version.range>
         <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
+        <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
 
     </properties>
 
