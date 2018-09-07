@@ -71,7 +71,10 @@
             <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>commons-codec.wso2</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -99,13 +102,16 @@
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.framework.import.version.range}",
                             org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
-                            org.wso2.carbon.identity.core.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.*; version="${carbon.identity.framework.import.version.range}",
+                            org.wso2.carbon.identity.base.*; version="${carbon.identity.framework.import.version.range}",
+                            org.wso2.carbon.base.*; version="${carbon.base.imp.pkg.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.json; version="${json.wso2.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.http.*;version="${httpcomponents-httpclient.imp.pkg.version.range}",
                             org.apache.http.client.*;version="${httpcomponents-httpclient.imp.pkg.version.range}",
                             org.apache.http.impl.client.*;version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            org.apache.commons.codec.binary; version="${commons-codec.wso2.osgi.version.range}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.outbound.provisioning.connector.office365.internal,

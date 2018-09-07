@@ -18,10 +18,10 @@
 
 package org.wso2.carbon.identity.outbound.provisioning.connector.office365;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -163,8 +163,6 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                         log.debug("The response received from server : " + jsonResponse.toString());
                     }
                 }
-            } catch (NullPointerException e) {
-                throw new IdentityProvisioningException(e.getMessage());
             } catch (IOException | JSONException e) {
                 throw new IdentityProvisioningException("Error while executing the create operation in user " +
                         "provisioning", e);
@@ -342,7 +340,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         return accessToken;
     }
 
-    private JSONObject buildUserAsJson(ProvisioningEntity provisioningEntity) throws NullPointerException {
+    private JSONObject buildUserAsJson(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity.getAttributes());
         String displayNameClaim = this.configHolder.getValue(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME);
@@ -362,7 +360,8 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         String ruleAttributeValue = requiredAttributes.get(ruleAttributeClaim);
 
         if (displayName == null || mailNickName == null || immutableId == null || upn == null) {
-            throw new NullPointerException("One or more of the mandatory user attributes: display name, mail " +
+            throw new IdentityProvisioningException("One or more of the mandatory user attributes: display name, mail" +
+                    " " +
                     "nickname, immutable id, user principal name do not have a value.");
         } else {
             // Create a json object corresponding to the attributes of the user in the request.
@@ -397,10 +396,8 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                     Office365ConnectorConstants.AUTHORIZATION_HEADER_BEARER + " " + accessToken);
 
             if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.ACCESS_TOKEN)) {
-                log.debug("Setting authorization header for method: " + httpMethod.getMethod() + " as follows,");
-                Header authorizationHeader = httpMethod
-                        .getLastHeader(Office365ConnectorConstants.AUTHORIZATION_HEADER_NAME);
-                log.debug(authorizationHeader.getName() + ": " + authorizationHeader.getValue());
+                log.debug("Received Bearer Token (hashed) : " + new String(Base64.encodeBase64(accessToken.getBytes()
+                )));
             }
         } else {
             throw new IdentityProvisioningException("Authentication failed");

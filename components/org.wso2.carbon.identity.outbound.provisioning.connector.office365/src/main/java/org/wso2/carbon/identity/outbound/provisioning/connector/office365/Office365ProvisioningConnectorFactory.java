@@ -39,6 +39,7 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
     @Override
     protected AbstractOutboundProvisioningConnector buildConnector(
             Property[] provisioningProperties) throws IdentityProvisioningException {
+
         Office365ProvisioningConnector connector = new Office365ProvisioningConnector();
         connector.init(provisioningProperties);
         if (log.isDebugEnabled()) {
@@ -54,7 +55,6 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
 
     @Override
     public List<Property> getConfigurationProperties() {
-        List<Property> properties = new ArrayList<>();
 
         Property clientId = new Property();
         clientId.setName(Office365ConnectorConstants.OFFICE365_CLIENT_ID);
@@ -72,7 +72,7 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         Property tenant = new Property();
         tenant.setName(Office365ConnectorConstants.OFFICE365_TENANT);
         tenant.setDisplayName("Office365 Tenant Name");
-        tenant.setDescription("Example : username.onmicrosoft.com");
+        tenant.setDescription("Example : tenantName.onmicrosoft.com");
         tenant.setDisplayOrder(3);
         tenant.setRequired(true);
 
@@ -133,6 +133,7 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         ruleValue.setDescription("If this is not set, 'http://wso2.org/claims/role' will be taken as default");
         ruleValue.setRequired(false);
 
+        List<Property> properties = new ArrayList<>();
         properties.add(clientId);
         properties.add(clientSecret);
         properties.add(tenant);
@@ -144,8 +145,6 @@ public class Office365ProvisioningConnectorFactory extends AbstractProvisioningC
         properties.add(mailNickName);
         properties.add(ruleAttribute);
         properties.add(ruleValue);
-
         return properties;
     }
-
 }
