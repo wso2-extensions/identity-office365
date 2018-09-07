@@ -51,7 +51,7 @@ public class Office365ConnectorServiceComponent {
                 log.debug("Office365 Identity Provisioning Connector bundle is activated");
             }
         } catch (Throwable e) {
-            log.fatal(" Error while activating Office365 Identity Provisioning Connector ", e);
+            log.error("Error while activating Office365 Identity Provisioning Connector ", e);
         }
     }
 }
