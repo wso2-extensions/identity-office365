@@ -57,4 +57,6 @@ public class Office365ConnectorConstants {
     public static final String PASSWORD_PROFILE = "passwordProfile";
     public static final String FORCE_CHANGE_PASSWORD = "forceChangePasswordNextSignIn";
     public static final String PASSWORD = "password";
+
+    public static final String PROPERTY_VALUE_TRUE = "1";
 }
