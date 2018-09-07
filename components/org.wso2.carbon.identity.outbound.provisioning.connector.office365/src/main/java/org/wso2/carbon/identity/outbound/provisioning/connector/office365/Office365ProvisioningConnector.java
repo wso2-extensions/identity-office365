@@ -104,8 +104,8 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 } else if (ProvisioningOperation.PUT == provisioningEntity.getOperation()) {
                     updateUser();
                 } else {
-                    log.warn("Unsupported provisioning operation " + provisioningEntity.getOperation() + " for entity" +
-                            "type " + provisioningEntity.getEntityType());
+                    log.warn("Unsupported provisioning operation " + provisioningEntity.getOperation() +
+                            " for entity type " + provisioningEntity.getEntityType());
                 }
             } else {
                 log.warn("Unsupported provisioning entity type " + provisioningEntity.getEntityType());
@@ -125,7 +125,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
      * @return string id for the provisioned user
      * @throws IdentityProvisioningException if the user can not be created in the Azure AD
      */
-    private String createUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
+    protected String createUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
         String provisionedId = null;
 
@@ -179,7 +179,8 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         return provisionedId;
     }
 
-    private void updateUser() {
+    protected void updateUser() {
+
         log.warn("Update user is not implemented.");
         // TODO: 8/14/18 Implement update user logic
     }
@@ -190,7 +191,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
      * @param provisioningEntity the user being removed
      * @throws IdentityProvisioningException if the user deletion is failed.
      */
-    private void deleteUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
+    protected void deleteUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
         // Get the provisioned id of deleted user. (Unassigned role)
         // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
@@ -238,7 +239,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
      * @param provisioningEntity the user being deleted.
      * @throws IdentityProvisioningException if the user can not be deleted.
      */
-    private void deleteUserPermanently(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
+    protected void deleteUserPermanently(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
         // Get the provisioned id of deleted user. (Unassigned role)
         // User's UPN can not be considered here because if the user himself is deleted, UPN will be null.
