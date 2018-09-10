@@ -341,6 +341,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
     }
 
     protected String generateRandomPassword() {
+
         String randomCapitals = RandomStringUtils.random(3, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         String randomSimples = RandomStringUtils.random(5, "abcdefghijklmnopqrstuvwxyz");
         String randomNumbers = RandomStringUtils.randomNumeric(4);
