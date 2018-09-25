@@ -340,6 +340,14 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         return accessToken;
     }
 
+    protected String generateRandomPassword() {
+
+        String randomCapitals = RandomStringUtils.random(3, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        String randomSimples = RandomStringUtils.random(5, "abcdefghijklmnopqrstuvwxyz");
+        String randomNumbers = RandomStringUtils.randomNumeric(4);
+        return randomCapitals.concat(randomSimples).concat(randomNumbers);
+    }
+
     private JSONObject buildUserAsJson(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity.getAttributes());
@@ -367,7 +375,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             // Create a json object corresponding to the attributes of the user in the request.
             JSONObject passwordProfile = new JSONObject();
             passwordProfile.put(Office365ConnectorConstants.FORCE_CHANGE_PASSWORD, false);
-            passwordProfile.put(Office365ConnectorConstants.PASSWORD, RandomStringUtils.randomAlphanumeric(12));
+            passwordProfile.put(Office365ConnectorConstants.PASSWORD, generateRandomPassword());
 
             JSONObject user = new JSONObject();
             user.put(Office365ConnectorConstants.ACCOUNT_ENABLED, true);
