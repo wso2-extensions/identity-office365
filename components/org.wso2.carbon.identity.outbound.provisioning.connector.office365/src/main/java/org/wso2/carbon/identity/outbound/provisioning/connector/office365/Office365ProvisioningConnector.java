@@ -91,7 +91,9 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         if (provisioningEntity != null) {
 
             if (provisioningEntity.isJitProvisioning() && !isJitProvisioningEnabled()) {
-                log.debug("JIT provisioning disabled for Office365 connector");
+                if (log.isDebugEnabled()) {
+                    log.debug("JIT provisioning disabled for Office365 connector.");
+                }
                 return null;
             }
 
@@ -102,7 +104,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 } else if (ProvisioningOperation.POST == provisioningEntity.getOperation()) {
                     provisionedId = createUser(provisioningEntity);
                 } else if (ProvisioningOperation.PUT == provisioningEntity.getOperation()) {
-                    updateUser();
+                    updateUser(provisioningEntity);
                 } else {
                     log.warn("Unsupported provisioning operation " + provisioningEntity.getOperation() +
                             " for entity type " + provisioningEntity.getEntityType());
@@ -177,7 +179,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         return provisionedId;
     }
 
-    protected void updateUser() {
+    protected void updateUser(ProvisioningEntity provisioningEntity) {
 
         log.warn("Update user is not implemented.");
         // TODO: 8/14/18 Implement update user logic
