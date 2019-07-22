@@ -70,11 +70,9 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         if (provisioningProperties != null && provisioningProperties.length > 0) {
             for (Property property : provisioningProperties) {
                 configs.put(property.getName(), property.getValue());
-                if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName())) {
-                    if (Office365ConnectorConstants.PROPERTY_VALUE_TRUE.equals(property.getValue())) {
+                if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property.getName()) &&
+                        Office365ConnectorConstants.PROPERTY_VALUE_TRUE.equals(property.getValue())) {
                         jitProvisioningEnabled = true;
-                    }
                 }
             }
         }
