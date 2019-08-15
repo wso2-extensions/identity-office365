@@ -35,7 +35,7 @@ import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactor
 )
 public class Office365ConnectorServiceComponent {
 
-    private static Log log = LogFactory.getLog(Office365ConnectorServiceComponent.class);
+    private static final Log log = LogFactory.getLog(Office365ConnectorServiceComponent.class);
 
     @Activate
     protected void activate(ComponentContext context) {
