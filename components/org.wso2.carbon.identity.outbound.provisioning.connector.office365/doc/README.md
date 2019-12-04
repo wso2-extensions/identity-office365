@@ -1,16 +1,5 @@
 # Configuring Microsoft Azure AD Outbound Provisioning Connector
 
-The Microsoft Azure AD authenticator is configured as a federated authenticator in WSO2 Identity Server to authenticate Office365 users to
-log in to your organization’s applications using OpenID Connect.
-Office365 refers to subscription plans that include access to Office
-applications plus other productivity services that are enabled over the
-Internet (cloud services).
-
-The diagram below illustrates the flow of the Office365 federated
-authenticator.
-
-![office365-federated-authenticator-flow](img/office365-federated-authenticator-flow.png)  
-
 This document provides instructions on how to provision users to a Azure
 Active Directory (Azure AD) from the WSO2 Identity Server (WSO2 IS).
 Follow the instructions given in the sections below to set this up.
@@ -74,7 +63,7 @@ Before you begin:
           **Sample URL**
 
           ``` java
-                  https://login.microsoftonline.com/wso2sl.onmicrosoft.com/adminconsent?client_id=1b0c61c1-3af9-41f6-a7a7-e5f1e4ac1023&state=12345&redirect_uri=https://localhost/myapp
+          https://login.microsoftonline.com/wso2sl.onmicrosoft.com/adminconsent?client_id=1b0c61c1-3af9-41f6-a7a7-e5f1e4ac1023&state=12345&redirect_uri=https://localhost/myapp
           ```
       </p>
     </details>
@@ -225,7 +214,7 @@ to create a new identity provider for Office365 provisioning in WSO2 IS.
 6.  **Optional step** - you can provision users based on the roles they
     are assigned to. To do this, configure the following.  
     For more information, see [Role Based
-    Provisioning](../../learn/role-based-provisioning)
+    Provisioning](https://is.docs.wso2.com/en/next/learn/role-based-provisioning)
     .
 
     1.  Expand **Role Configuration** section.
