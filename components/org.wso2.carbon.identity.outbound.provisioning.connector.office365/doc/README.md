@@ -9,7 +9,7 @@ Internet (cloud services).
 The diagram below illustrates the flow of the Office365 federated
 authenticator.
 
-![](76746216.png)  
+![office365-federated-authenticator-flow](img/office365-federated-authenticator-flow.png)  
 
 This document provides instructions on how to provision users to a Azure
 Active Directory (Azure AD) from the WSO2 Identity Server (WSO2 IS).
@@ -115,7 +115,7 @@ to create a new identity provider for Office365 provisioning in WSO2 IS.
     **Office365 Provisioning Configuration.**
 5.  Configure the following fields.
 
-    ![](../assets/img/97567237/97568327.png)
+    ![outbount-provisioning-connector-config](img/outbount-provisioning-connector-config.png)
 
     <table>
     <thead>
@@ -231,7 +231,7 @@ to create a new identity provider for Office365 provisioning in WSO2 IS.
     1.  Expand **Role Configuration** section.
 
     2.  Enter the provisioning roles.  
-        ![](../assets/img/97567237/97567306.png) 
+        ![role-configurations](img/role-configurations.png) 
 
 7.  Click **Register** to save the changes.
 
@@ -254,7 +254,7 @@ to the Azure AD.
 4.  Select the identity provider you created for Office365 outbound
     provisioning from the drop down menu. Click **\[+\]** to add it as a
     service provider.  
-    ![](../assets/img/97567237/97567324.png) 
+    ![idp-config](img/idp-config.png) 
 
 5.  Click **Update** to save changes.
 
@@ -279,7 +279,7 @@ Follow the instructions below to try out this scenario.
     .
 2.  Click on the **http://wso2.org/claims** claim dialect.
 3.  Click **Edit** on the **Display Name** claim and select **Supported By Default** to enable the claim.  
-    ![](../assets/img/97567237/97568356.png) 
+    ![claim-config](img/claim-config.png) 
     
 4.  Click **Update** to save.
 5.  Similarly, enable all the claims that you configured in the outbound
@@ -293,7 +293,7 @@ Follow the instructions below to try out this scenario.
 
 2.  Click **Add New User** and create a user with the username 'john’.
 
-    ![](../assets/img/97567237/97568307.png) 
+    ![create-user](img/create-user.png) 
 
 3.  Click **Finish**. You will see the user you just created listed on
     the screen.
@@ -308,7 +308,7 @@ Follow the instructions below to try out this scenario.
         `User ID`
         are mandatory attributes for user provisioning and group assigning.
 
-        ![](../assets/img/97567237/97569993.png) 
+        ![mandatory-sttributes](img/mandatory-sttributes.png) 
 
 5.  Click **Update** to save the changes.
 
@@ -330,7 +330,7 @@ Follow the instructions below to try out this scenario.
     
 3.  Add a **Dynamic Membership Rule** as shown below. This rule
     specifies that any users that belong to the `Engineering` should be provisioned directly to the `Engineering` user group.  
-    ![](../assets/img/97567237/97569994.png) 
+    ![dynamic-membership-rules](img/dynamic-membership-rules.png) 
 
 #### Assign the role
 
@@ -343,7 +343,7 @@ Follow the instructions below to try out this scenario.
 5.  Assign the user 'john' to the roles '
     `          office365role         ` ' and '
     `          Engineering         ` .  
-    ![](../assets/img/97567237/97569996.png) 
+    ![role-assigning](img/role-assigning.png) 
 
 When the role is assigned to the user, the user is provisioned to the
 AzureAD. This may take a few seconds.
@@ -355,4 +355,4 @@ roles, the dynamic membership rule is satisfied. Therefore, John is
 directly added to the ' `         Engineering        ` ' group at the
 point of provisioning.
 
-![](../assets/img/97567237/97569998.png) 
+![provisioned-user](img/provisioned-user.png) 
