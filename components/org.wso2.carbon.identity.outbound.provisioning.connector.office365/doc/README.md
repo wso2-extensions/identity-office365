@@ -308,7 +308,7 @@ Follow the instructions below to try out this scenario.
         `User ID`
         are mandatory attributes for user provisioning and group assigning.
 
-        ![mandatory-sttributes](img/mandatory-sttributes.png) 
+       ![mandatory-sttributes](img/mandatory-attributes.png)
 
 5.  Click **Update** to save the changes.
 
