@@ -43,6 +43,13 @@
     </description>
     <url>http://wso2.org</url>
 
+    <scm>
+        <url>https://github.com/wso2/carbon-identity-framework.git</url>
+        <developerConnection>scm:git:https://github.com/wso2-extensions/identity-office365.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2-extensions/identity-office365.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <repositories>
         <repository>
             <id>wso2-nexus</id>
