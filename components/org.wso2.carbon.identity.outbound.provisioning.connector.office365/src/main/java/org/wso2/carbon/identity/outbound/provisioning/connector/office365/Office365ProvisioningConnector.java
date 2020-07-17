@@ -27,6 +27,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
@@ -177,10 +178,57 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         return provisionedId;
     }
 
-    protected void updateUser(ProvisioningEntity provisioningEntity) {
+    /**
+     * Call the update user endpoint of Azure AD and update the user properties.
+     *
+     * @param provisioningEntity user to be provisioned
+     * @throws IdentityProvisioningException if the user can not be created in the Azure AD
+     */
+    protected void updateUser(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
 
-        log.warn("Update user is not implemented.");
-        // TODO: 8/14/18 Implement update user logic
+        String provisionedUserId = provisioningEntity.getIdentifier().getIdentifier();
+
+        try (CloseableHttpClient httpclient = HttpClientBuilder.create().useSystemProperties().build()) {
+
+            JSONObject user = buildUserAsJson(provisioningEntity);
+            String updateUserEndpoint = Office365ConnectorConstants.OFFICE365_USER_ENDPOINT + '/' + provisionedUserId;
+            HttpPatch patchRequest = new HttpPatch(updateUserEndpoint);
+            setAuthorizationHeader(patchRequest);
+
+            StringEntity requestBody = new StringEntity(user.toString());
+            requestBody.setContentType(Office365ConnectorConstants.CONTENT_TYPE_APPLICATION_JSON);
+            patchRequest.setEntity(requestBody);
+            patchRequest.setHeader(Office365ConnectorConstants.CONTENT_TYPE, Office365ConnectorConstants
+                    .CONTENT_TYPE_APPLICATION_JSON);
+
+            try (CloseableHttpResponse response = httpclient.execute(patchRequest)) {
+
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Successfully updated the provisioned user with id " + provisionedUserId + " in " +
+                                "the Azure Active Directory.");
+                    }
+                } else {
+                    JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
+                            response.getEntity().getContent())));
+                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
+
+                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                            "' while updating the user with id " + provisionedUserId + " in the Azure Active " +
+                            "Directory.");
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("The response received from server : " + jsonResponse.toString());
+                    }
+                }
+            } catch (IOException | JSONException e) {
+                throw new IdentityProvisioningException("Error while executing the update operation in user " +
+                        "provisioning.", e);
+            }
+        } catch (IOException e) {
+            log.error("Error while closing HttpClient.");
+        }
     }
 
     /**
@@ -361,29 +409,31 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
         if (ruleAttributeClaim.isEmpty() && !ruleAttributeName.isEmpty()) {
             ruleAttributeClaim = Office365ConnectorConstants.WSO2_ROLE_CLAIM;
         }
-        String displayName = requiredAttributes.get(displayNameClaim);
-        String mailNickName = requiredAttributes.get(mailNickNameClaim);
-        String immutableId = requiredAttributes.get(immutableIdClaim);
-        String upn = requiredAttributes.get(upnClaim);
-        String ruleAttributeValue = requiredAttributes.get(ruleAttributeClaim);
+        String displayName = getUserClaimValue(requiredAttributes, displayNameClaim, provisioningEntity);
+        String mailNickName = getUserClaimValue(requiredAttributes, mailNickNameClaim, provisioningEntity);
+        String immutableId = getUserClaimValue(requiredAttributes, immutableIdClaim, provisioningEntity);
+        String upn = getUserClaimValue(requiredAttributes, upnClaim, provisioningEntity);
+        String ruleAttributeValue = getUserClaimValue(requiredAttributes, ruleAttributeClaim, provisioningEntity);
 
         if (displayName == null || mailNickName == null || immutableId == null || upn == null) {
             throw new IdentityProvisioningException("One or more of the mandatory user attributes: display name, mail" +
-                    " " +
-                    "nickname, immutable id, user principal name do not have a value.");
+                    " nickname, immutable id, user principal name do not have a value.");
         } else {
-            // Create a json object corresponding to the attributes of the user in the request.
-            JSONObject passwordProfile = new JSONObject();
-            passwordProfile.put(Office365ConnectorConstants.FORCE_CHANGE_PASSWORD, false);
-            passwordProfile.put(Office365ConnectorConstants.PASSWORD, generateRandomPassword());
 
+            // Create a json object corresponding to the attributes of the user in the request.
             JSONObject user = new JSONObject();
             user.put(Office365ConnectorConstants.ACCOUNT_ENABLED, true);
             user.put(Office365ConnectorConstants.OFFICE365_DISPLAY_NAME, displayName);
             user.put(Office365ConnectorConstants.OFFICE365_EMAIL_NICKNAME, mailNickName);
             user.put(Office365ConnectorConstants.OFFICE365_UPN, getDomainSpecificUpn(upn));
             user.put(Office365ConnectorConstants.OFFICE365_IMMUTABLE_ID, immutableId);
-            user.put(Office365ConnectorConstants.PASSWORD_PROFILE, passwordProfile);
+
+            if (ProvisioningOperation.POST == provisioningEntity.getOperation()) {
+                JSONObject passwordProfile = new JSONObject();
+                passwordProfile.put(Office365ConnectorConstants.FORCE_CHANGE_PASSWORD, false);
+                passwordProfile.put(Office365ConnectorConstants.PASSWORD, generateRandomPassword());
+                user.put(Office365ConnectorConstants.PASSWORD_PROFILE, passwordProfile);
+            }
             if (!ruleAttributeName.isEmpty()) {
                 user.put(ruleAttributeName, ruleAttributeValue);
             }
@@ -392,6 +442,15 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 log.debug("A user object is created. " + user.toString());
             }
             return user;
+        }
+    }
+
+    private String getUserClaimValue(Map<String, String> attributes, String requiredClaim, ProvisioningEntity entity) {
+
+        if (Office365ConnectorConstants.WSO2_USERNAME_CLAIM.equals(requiredClaim)) {
+            return entity.getEntityName();
+        } else {
+            return attributes.get(requiredClaim);
         }
     }
 

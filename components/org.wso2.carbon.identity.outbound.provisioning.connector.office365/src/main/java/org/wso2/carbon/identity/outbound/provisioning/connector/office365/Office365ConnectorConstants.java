@@ -36,6 +36,7 @@ public class Office365ConnectorConstants {
     public static final String OFFICE365_MEMBERSHIP_VALUE = "office-365-membership-rule-value";
 
     public static final String WSO2_ROLE_CLAIM = "http://wso2.org/claims/role";
+    public static final String WSO2_USERNAME_CLAIM = "http://wso2.org/claims/username";
 
     public static final String OFFICE365_BASE_URL = "https://login.microsoftonline.com";
     public static final String OFFICE365_TOKEN_ENDPOINT = "/oauth2/v2.0/token";
