@@ -173,7 +173,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 log.debug("Returning provisioned user's ID: " + provisionedId);
             }
         } catch (IOException e) {
-            log.error("Error while closing HttpClient.");
+            log.error("Error while closing HttpClient.", e);
         }
         return provisionedId;
     }
@@ -227,7 +227,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                         "provisioning.", e);
             }
         } catch (IOException e) {
-            log.error("Error while closing HttpClient.");
+            log.error("Error while closing HttpClient.", e);
         }
     }
 
@@ -275,7 +275,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                         "provisioning", e);
             }
         } catch (IOException e) {
-            log.error("Error while closing HttpClient.");
+            log.error("Error while closing HttpClient.", e);
         }
     }
 
@@ -325,7 +325,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
             }
 
         } catch (IOException e) {
-            log.error("Error while closing HttpClient.");
+            log.error("Error while closing HttpClient.", e);
         }
     }
 
@@ -383,7 +383,7 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 throw new IdentityProvisioningException("Error while obtaining the access token from the response.", e);
             }
         } catch (IOException e) {
-            log.error("Error while closing HttpClient.");
+            log.error("Error while closing HttpClient.", e);
         }
         return accessToken;
     }
