@@ -154,11 +154,19 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                                 jsonResponse.toString());
                     }
                 } else {
-                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
-                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
-                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
-                            "' while creating the user " + user.getString(Office365ConnectorConstants.OFFICE365_UPN) +
-                            " in the Azure Active Directory.");
+                    if (jsonResponse.has("error")) {
+                        String errorMessage = jsonResponse.getJSONObject("error").getString("message");
+                        log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                                + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                                "' while creating the user " + user.getString(Office365ConnectorConstants
+                                .OFFICE365_UPN) + " in the Azure Active Directory.");
+
+                    } else {
+                        log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                                + response.getStatusLine().getReasonPhrase() + " while creating the user " + user
+                                .getString(Office365ConnectorConstants.OFFICE365_UPN) + " in the Azure Active " +
+                                "Directory.");
+                    }
 
                     if (log.isDebugEnabled()) {
                         log.debug("The response received from server : " + jsonResponse.toString());
@@ -211,12 +219,18 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 } else {
                     JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
                             response.getEntity().getContent())));
-                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
 
-                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
-                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
-                            "' while updating the user with id " + provisionedUserId + " in the Azure Active " +
-                            "Directory.");
+                    if (jsonResponse.has("error")) {
+                        String errorMessage = jsonResponse.getJSONObject("error").getString("message");
+                        log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                                + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                                "' while updating the user with id " + provisionedUserId + " in the Azure Active " +
+                                "Directory.");
+                    } else {
+                        log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                                + response.getStatusLine().getReasonPhrase() + " while updating the user with id " +
+                                provisionedUserId + " in the Azure Active " + "Directory.");
+                    }
 
                     if (log.isDebugEnabled()) {
                         log.debug("The response received from server : " + jsonResponse.toString());
@@ -259,12 +273,18 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 } else {
                     JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
                             response.getEntity().getContent())));
-                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
 
-                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
-                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
-                            "' while deleting the user with id " + provisionedUserId + " from the Azure Active " +
-                            "Directory.");
+                    if (jsonResponse.has("error")) {
+                        String errorMessage = jsonResponse.getJSONObject("error").getString("message");
+                        log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                                + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                                "' while deleting the user with id " + provisionedUserId + " from the Azure Active " +
+                                "Directory.");
+                    } else {
+                        log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                                + response.getStatusLine().getReasonPhrase() + " while deleting the user with id " +
+                                provisionedUserId + " from the Azure Active Directory.");
+                    }
 
                     if (log.isDebugEnabled()) {
                         log.debug("The response received from server : " + jsonResponse.toString());
@@ -307,12 +327,18 @@ public class Office365ProvisioningConnector extends AbstractOutboundProvisioning
                 } else {
                     JSONObject jsonResponse = new JSONObject(new JSONTokener(new InputStreamReader(
                             response.getEntity().getContent())));
-                    String errorMessage = jsonResponse.getJSONObject("error").getString("message");
 
-                    log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
-                            + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
-                            "' while permanently removing the user with id " + provisionedUserId +
-                            " in the Azure Active Directory.");
+                    if (jsonResponse.has("error")) {
+                        String errorMessage = jsonResponse.getJSONObject("error").getString("message");
+                        log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                                + response.getStatusLine().getReasonPhrase() + " with the message '" + errorMessage +
+                                "' while permanently removing the user with id " + provisionedUserId +
+                                " in the Azure Active Directory.");
+                    } else {
+                        log.error("Received response status code: " + response.getStatusLine().getStatusCode() + " "
+                                + response.getStatusLine().getReasonPhrase() + " while permanently removing the user" +
+                                " with id " + provisionedUserId + " in the Azure Active Directory.");
+                    }
 
                     if (log.isDebugEnabled()) {
                         log.debug("The response received from server : " + jsonResponse.toString());
