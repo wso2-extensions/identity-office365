@@ -27,7 +27,7 @@
     <groupId>org.wso2.carbon.identity.outbound.provisioning.connector.office365</groupId>
     <artifactId>identity-office365</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <version>1.0.3</version>
+    <version>1.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Identity Provisioning Connector for Office365</name>
 
@@ -44,7 +44,7 @@
         <url>https://github.com/wso2/carbon-identity-framework.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/identity-office365.git</developerConnection>
         <connection>scm:git:https://github.com/wso2-extensions/identity-office365.git</connection>
-        <tag>v1.0.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
 
