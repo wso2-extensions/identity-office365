@@ -2,9 +2,23 @@
     "name": "Office365 Provisioning Connector",
     "owner": "WSO2",
     "category": "Provisioning connector",
-    "documentationUrl": "https://docs.wso2.com/display/ISCONNECTORS/Configuring+Microsoft+Azure+AD+Outbound+Provisioning+Connector",
+    "documentationUrl": "https://github.com/wso2-extensions/identity-office365/tree/master/components/org.wso2.carbon.identity.outbound.provisioning.connector.office365/doc",
     "description": "",
     "status": "Active",
     "labels": [],
-    "releases": []
+    "releases": [
+        {
+            "tagName": "1.0.1",
+            "products": [
+                "IS 6.0.0",
+                "IS 5.10.0"
+            ]
+        },
+        {
+            "tagName": "1.0.0",
+            "products": [
+                "IS 5.7.0"
+            ]
+        }
+    ]
 }
